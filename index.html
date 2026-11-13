@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vinile – cerca e ascolta</title>
+<style>
+:root{color-scheme:dark;background:#121212;--g:#1ed760;--m:#b3b3b3;padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#1f3a2a 0,#121212 260px) no-repeat,#121212;color:#fff;font:16px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 16px 130px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+header{position:sticky;top:0;z-index:3;margin:0 -16px;padding:14px 16px 10px;background:#121212e6}
+h1{margin:0 0 10px;font-size:26px;font-weight:800}
+h2{margin:22px 0 10px;font-size:20px;font-weight:800}
+.s{display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:8px;background:#fff;color:#000}
+.s svg{width:24px;height:24px;flex:none;fill:none;stroke:#000;stroke-width:2.2;stroke-linecap:round}
+.s input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-weight:700;color:#000}
+.s input::placeholder{color:#535353}
+.empty{margin:36px 8px;text-align:center;color:var(--m)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.card{text-align:left;min-width:0}
+.card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;background:#282828}
+.card b,.card small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card b{margin-top:8px;font-size:15px}
+.card small,.r small{color:var(--m);font-size:14px}
+ul{list-style:none;margin:0;padding:0}
+.r{display:flex;align-items:center;gap:12px;width:100%;padding:6px 0;text-align:left;min-height:60px}
+.r img{width:48px;height:48px;border-radius:4px;background:#282828;flex:none;object-fit:cover}
+.r span{min-width:0;flex:1}
+.r b,.r small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r em{font-style:normal;color:var(--m);font-size:14px;font-variant-numeric:tabular-nums}
+.r .n{width:28px;text-align:center;flex:none;color:var(--m)}
+li.on b{color:var(--g)}
+.back{min-height:44px;color:var(--m)}
+.head{text-align:center}
+.head img{width:min(62vw,240px);aspect-ratio:1;border-radius:6px;box-shadow:0 14px 34px #0009;background:#282828}
+.head h2{margin:14px 0 2px}
+.head p{margin:0;color:var(--m)}
+.acts{display:flex;gap:10px;justify-content:center;margin:14px 0 6px;flex-wrap:wrap}
+.go{display:inline-flex;align-items:center;height:46px;padding:0 24px;border-radius:999px;background:var(--g);color:#000;font-weight:800}
+.ln{display:inline-flex;align-items:center;height:46px;padding:0 20px;border-radius:999px;border:1px solid #ffffff59;color:#fff;text-decoration:none;font-weight:700}
+#bar{display:none;position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:4;background:#2a2a2a;border-radius:8px;padding:8px 6px 10px 8px;align-items:center;gap:10px;box-shadow:0 6px 24px #000a}
+#bar.on{display:flex}
+#bar img{width:44px;height:44px;border-radius:4px;flex:none;object-fit:cover;background:#282828}
+#bar .t{flex:1;min-width:0}
+#bar .t b,#bar .t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bar .t b{font-size:14px}
+#bar .t small{color:var(--m);font-size:13px}
+#bar a{color:var(--m);font-size:12px;text-decoration:underline;padding:12px 4px}
+.ic{width:44px;height:44px;display:grid;place-items:center}
+.ic svg{width:26px;height:26px;fill:currentColor}
+.pp .i2,.pl .pp .i1{display:none}
+.pl .pp .i2{display:block}
+#pg{position:absolute;left:8px;bottom:3px;height:2px;border-radius:1px;background:#fff;width:0}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vinile</h1>
+  <form class="s" id="f" role="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" enterkeyhint="search" placeholder="Artisti, album o brani" aria-label="Cerca"></form>
+</header>
+<main id="main"><p class="empty">Cerca un artista, un album o un brano per vedere le copertine e ascoltare le anteprime da 30 secondi.</p></main>
+
+<div id="bar">
+  <img id="bi" alt="">
+  <div class="t"><b id="bt"></b><small id="ba"></small></div>
+  <a id="bl" target="_blank" rel="noopener noreferrer">Intero</a>
+  <button class="ic" id="pv" aria-label="Precedente"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zM20 6v12L9.5 12z"/></svg></button>
+  <button class="ic pp" id="pp" aria-label="Riproduci o metti in pausa"><svg class="i1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="i2" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+  <button class="ic" id="nx" aria-label="Successivo"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM4 6v12l10.5-6z"/></svg></button>
+  <span id="pg"></span>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const art=(u,n)=>(u||'').replace(/\d+x\d+bb/,n+'x'+n+'bb');
+const dur=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const main=$('#main');
+const L={songs:[],album:[]};let lastHTML=main.innerHTML;
+const au=new Audio();let queue=[],qi=-1;
+
+/* Catalogo iTunes: prima fetch, se il browser la blocca ricade su JSONP */
+function jsonp(url){return new Promise((res,rej)=>{
+  const cb='cb'+Date.now()+Math.floor(Math.random()*1e4),s=document.createElement('script');
+  const clean=()=>{clearTimeout(t);delete window[cb];s.remove()};
+  const t=setTimeout(()=>{clean();rej()},8000);
+  window[cb]=d=>{clean();res(d)};s.onerror=()=>{clean();rej()};
+  s.src=url+'&callback='+cb;document.head.appendChild(s);
+})}
+function api(path,p){
+  const url=`https://itunes.apple.com/${path}?`+new URLSearchParams({...p,country:'it'});
+  return fetch(url).then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>jsonp(url));
+}
+const fail=()=>{main.innerHTML='<p class="empty">Non riesco a contattare il catalogo. Controlla la connessione e riprova.</p>'};
+
+async function search(term){
+  main.innerHTML='<p class="empty">Cerco…</p>';
+  try{
+    const [al,so]=await Promise.all([
+      api('search',{term,media:'music',entity:'album',limit:12}),
+      api('search',{term,media:'music',entity:'song',limit:15})]);
+    const albums=al.results||[];
+    L.songs=(so.results||[]).filter(x=>x.previewUrl);
+    if(!albums.length&&!L.songs.length){main.innerHTML='<p class="empty">Nessun risultato. Prova con un altro nome.</p>';lastHTML=main.innerHTML;return}
+    main.innerHTML=(albums.length?`<h2>Album</h2><div class="grid">${albums.map(a=>`<button class="card" data-album="${a.collectionId}"><img src="${esc(art(a.artworkUrl100,300))}" alt="" loading="lazy"><b>${esc(a.collectionName)}</b><small>${esc(a.artistName)}</small></button>`).join('')}</div>`:'')
+      +(L.songs.length?`<h2>Brani</h2><ul data-list="songs">${L.songs.map((t,i)=>row(t,i)).join('')}</ul>`:'');
+    lastHTML=main.innerHTML;mark();
+  }catch(e){fail()}
+}
+const row=(t,i,num)=>`<li data-id="${t.trackId}"><button class="r" data-i="${i}">${num?`<span class="n">${i+1}</span>`:`<img src="${esc(art(t.artworkUrl100,100))}" alt="" loading="lazy">`}<span><b>${esc(t.trackName)}</b><small>${esc(t.artistName)}</small></span>${t.trackTimeMillis?`<em>${dur(t.trackTimeMillis)}</em>`:''}</button></li>`;
+
+async function openAlbum(id){
+  main.innerHTML='<p class="empty">Carico l’album…</p>';
+  try{
+    const d=await api('lookup',{id,entity:'song'});
+    const [c,...r]=d.results||[];if(!c)return fail();
+    L.album=r.filter(x=>x.wrapperType==='track'&&x.previewUrl);
+    const yt='https://music.youtube.com/search?q='+encodeURIComponent(c.artistName+' '+c.collectionName);
+    main.innerHTML=`<button class="back" id="back">‹ Indietro</button><div class="head"><img src="${esc(art(c.artworkUrl100,600))}" alt=""><h2>${esc(c.collectionName)}</h2><p>${esc(c.artistName)}${c.releaseDate?' – '+c.releaseDate.slice(0,4):''}</p></div>
+    <div class="acts">${L.album.length?'<button class="go" id="all">Ascolta le anteprime</button>':''}<a class="ln" href="${yt}" target="_blank" rel="noopener noreferrer">Intero su YouTube</a></div>
+    ${L.album.length?`<ul data-list="album">${L.album.map((t,i)=>row(t,i,1)).join('')}</ul>`:'<p class="empty">Per questo album non ci sono anteprime disponibili.</p>'}`;
+    scrollTo(0,0);mark();
+  }catch(e){fail()}
+}
+
+/* Player a anteprime */
+function play(list,i){
+  queue=L[list];qi=i;const t=queue[i];if(!t)return;
+  au.src=t.previewUrl;au.play().catch(()=>{});
+  $('#bi').src=art(t.artworkUrl100,100);$('#bt').textContent=t.trackName;$('#ba').textContent=t.artistName;
+  $('#bl').href='https://music.youtube.com/search?q='+encodeURIComponent(t.artistName+' '+t.trackName);
+  $('#bar').classList.add('on');mark();
+}
+function step(d){const n=qi+d;if(n>=0&&n<queue.length)play(queue===L.songs?'songs':'album',n);else if(d>0){au.pause();au.currentTime=0}}
+function mark(){const id=queue[qi]&&queue[qi].trackId;document.querySelectorAll('li[data-id]').forEach(li=>li.classList.toggle('on',+li.dataset.id===id))}
+au.onplay=au.onpause=()=>$('#bar').classList.toggle('pl',!au.paused);
+au.onended=()=>step(1);
+au.ontimeupdate=()=>{$('#pg').style.width=au.duration?`calc((100% - 16px) * ${au.currentTime/au.duration})`:'0'};
+au.onerror=()=>{main.insertAdjacentHTML('afterbegin','<p class="empty">Questa anteprima non si carica. Prova con un altro brano.</p>')};
+$('#pp').onclick=()=>au.paused?au.play().catch(()=>{}):au.pause();
+$('#pv').onclick=()=>au.currentTime>3?au.currentTime=0:step(-1);
+$('#nx').onclick=()=>step(1);
+
+/* Eventi */
+$('#f').onsubmit=e=>{e.preventDefault();const t=$('#q').value.trim();if(t){$('#q').blur();search(t)}};
+main.onclick=e=>{
+  const al=e.target.closest('[data-album]');if(al)return openAlbum(al.dataset.album);
+  if(e.target.closest('#back')){main.innerHTML=lastHTML;mark();return}
+  if(e.target.closest('#all'))return play('album',0);
+  const r=e.target.closest('.r');
+  if(r){const list=r.closest('[data-list]').dataset.list;play(list,+r.dataset.i)}
+};
+</script>
+</body>
+</html>
